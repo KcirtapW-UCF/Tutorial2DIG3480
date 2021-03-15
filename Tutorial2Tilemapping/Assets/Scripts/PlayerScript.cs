@@ -13,11 +13,30 @@ public class PlayerScript : MonoBehaviour
 
     private int scoreValue = 0;
 
+    public int lives = 3;
+
+    public Text livestext;
+
+    public Text death;
+
+    public Transform level2;
+
+    public Transform playerposition;
+
+    public int wincon = 0;
+
+    public AudioSource audio;
+
+    public AudioClip winmusic;
+
+    public AudioClip losemusic;
+
     // Start is called before the first frame update
     void Start()
     {
         rd2d = GetComponent<Rigidbody2D>();
-        score.text = scoreValue.ToString();
+        score.text = "Score: " + scoreValue.ToString();
+        livestext.text = "Lives: " + lives.ToString();
     }
 
     // Update is called once per frame
@@ -38,10 +57,41 @@ public class PlayerScript : MonoBehaviour
        if (collision.collider.tag == "Coin")
         {
             scoreValue += 1;
-            score.text = scoreValue.ToString();
+            score.text = "Score: " + scoreValue.ToString();
             Destroy(collision.collider.gameObject);
+            if (scoreValue >= 4 && wincon == 0)
+            {
+                scoreValue = 0;
+                lives = 3;
+                score.text = "Score: " + scoreValue.ToString();
+                livestext.text = "Lives: " + lives.ToString();
+                playerposition.position = level2.position;
+                wincon = 1;
+            }
+
+            else if (scoreValue >= 4 && wincon == 1)
+            {
+                audio.Stop();
+                death.text = "You Win" + "\n Game Created by Patrick Weatherford!";
+                audio.clip = winmusic;
+                audio.Play();
+            }
         }
 
+        if (collision.collider.tag == "Enemy")
+        {
+            lives -= 1;
+            livestext.text = "Lives: " + lives.ToString();
+            Destroy(collision.collider.gameObject);
+            if (lives <= 0)
+            {
+                audio.Stop();
+                death.text = "You Lose";
+                audio.clip = losemusic;
+                audio.Play();
+                Object.Destroy(this.gameObject);
+            }
+        }
     }
 
     private void OnCollisionStay2D(Collision2D collision)
